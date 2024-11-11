@@ -1,6 +1,8 @@
 import network
 import uasyncio
 import time
+import json
+import urequests
 from mdns_client import Client
 from mdns_client.service_discovery import ServiceResponse
 from mdns_client.service_discovery.txt_discovery import TXTServiceDiscovery
@@ -105,7 +107,7 @@ async def handle_root(request):
 # Rota para Thing Description
 @app.route('/thing-description')
 async def get_thing_description(request):
-    return json.dumps(thing_description)
+    return json.dumps(TD)
 
 # Rota para executar uma ação (buzz)
 @app.route('/do-something')
