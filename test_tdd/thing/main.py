@@ -3,11 +3,16 @@ import uasyncio
 import time
 import json
 import urequests
+import machine
 from microdot import Microdot, Response
 from mdns_client import Client
 from mdns_client.service_discovery import ServiceResponse
 from mdns_client.service_discovery.txt_discovery import TXTServiceDiscovery
 from mdns_client.responder import Responder
+
+# Definindo variáveis globais
+PORT=80
+HOST="esp32"
 
 # Definição da Thing Description (TD)
 TD = {
@@ -32,15 +37,28 @@ TD = {
                     "op": "readproperty"
                 }
             ]
+        },
+        "lightSensor": {
+            "type": "number",
+            "title": "Light Sensor",
+            "description": "Get a value of light sensor",
+            "readOnly": True,
+            "forms": [
+                {
+                    "href": "/light-sensor",
+                    "contentType": "application/json",
+                    "op": "readproperty"
+                }
+            ]
         }
     },
     "actions": {
-        "doSomething": {
-            "title": "Do something",
-            "description": "Does something",
+        "toggleLed": {
+            "title": "Toggle Led",
+            "description": "Turn on or turn off my led",
             "forms": [
                 {
-                    "href": "/doSomething",
+                    "href": "/toggle-led",
                     "contentType": "application/json",
                     "op": "invokeaction"
                 }
@@ -56,9 +74,17 @@ TD = {
     "securityDefinitions": {"nosec_sc": {"scheme": "nosec"}}
 }
 
+# Setup items
+light_sensor = machine.ADC(machine.Pin(34))
+led = machine.Pin(2, machine.Pin.OUT)
+led_state = 0
+led.value(led_state)
+
 # =============================== < wi-fi > ===============================
 ssid = "Batcaverna-IoT"
 password = "4pfXgcGh7y"
+#ssid = "lab8"
+#password = "lab8arduino"
 
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
@@ -79,14 +105,45 @@ Response.default_content_type = 'application/json'
 async def handle_root(request):
     return {"message": "Hello from ESP32! This ESP acts as both a client and a server."}
 
-@app.route('/thing-description')
+@app.route('/properties/thing-description')
 async def get_thing_description(request):
     return json.dumps(TD)
 
-@app.route('/do-something')
-async def do_something(request):
-    print("Executing action: Buzz... (simulated)")
-    return {"message": "Action executed: buzz..."}
+# Rota para ler o dado atual do sensor de luminosidade
+@app.route('/properties/light_sensor')
+async def get_light_sensor(request):
+    sensor_value = light_sensor.read()
+    return {"value": sensor_value}
+
+# Rota para mudar o estado do LED (ligado ou desligado)
+@app.route('/actions/toggle-led', methods=['PUT'])
+async def toggle_led(request):
+    global led_state
+
+    try:
+        # Obtém o valor do corpo da requisição
+        data = request.json
+        if "value" in data:
+            # Verifica se o valor é 0 ou 1
+            new_state = int(data["value"])
+            if new_state not in (0, 1):
+                return {"error": "'value' must be 0 or 1"}, 400
+        
+            led_state = new_state
+
+        # Se não houver valor, apenas inverte o estado atual
+        else:
+            if led_state:
+                led_state = 0
+            else:
+                led_state = 1
+        
+        # Atualiza o estado do LED
+        led.value(led_state)
+        
+        return {"message": "LED updated", "led_state": led_state}
+    except Exception as e:
+        return {"error": str(e)}, 400
 
 @app.route('<path:path>')
 async def handle_not_found(request, path):
@@ -94,11 +151,10 @@ async def handle_not_found(request, path):
 
 # =============================== < mDNS > ===============================
 client = Client(own_ip_address)
-responder = Responder(client, own_ip=own_ip_address, host="esp32")
+responder = Responder(client, own_ip=own_ip_address, host=HOST)
+responder.advertise("_wot", "_tcp", port=PORT)
 
-# Anuncia o serviço HTTP na porta 80
-responder.advertise("_http", "_tcp", port=80)
-print("Anunciado como esp32.local com serviço HTTP na porta 80")
+print(f"Anunciado como {HOST}.local com serviço HTTP na porta {PORT}")
 discovery = TXTServiceDiscovery(client)
 
 class ServiceMonitor:
@@ -142,8 +198,8 @@ async def discover():
         await uasyncio.sleep(5)
 
 async def start_server():
-    print("Servidor iniciado na porta 80...")
-    await app.start_server(host='0.0.0.0', port=80)
+    print("Servidor iniciado na porta ", PORT)
+    await app.start_server(host='0.0.0.0', port=PORT)
 
 async def main():
     await uasyncio.gather(
@@ -152,4 +208,3 @@ async def main():
     )
 
 uasyncio.run(main())
-
