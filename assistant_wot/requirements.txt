@@ -1,0 +1,5 @@
+netifaces
+zeroconf
+flask
+wotpy
+requests
