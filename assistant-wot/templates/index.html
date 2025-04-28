@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Assistente WoT</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2em; background: #f9f9f9; }
+    .container-search { width: 100%; display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    button { padding: 0.5rem 1rem; cursor: pointer; }
+    #resultado { margin-top: 1em; padding: 1em; background: #fff; border: 1px solid #ddd; white-space: pre-wrap; }
+    .btn-avancado {
+      margin-top: 1em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Assistente WoT</h1>
+  <div class="container-search">
+    <input type="text" id="localizacao" placeholder="Digite a localização..." style="padding: 0.5em; width: 200px;">
+    <input type="text" id="frase" placeholder="Digite seu comando..." style="width: 100%; padding: 0.5em;">
+    <button onclick="enviarFrase()">Enviar</button>
+  </div>
+
+  <div id="resultado"></div>
+  <div id="avancado"></div>
+
+  <script>
+    async function enviarFrase() {
+      const frase = document.getElementById("frase").value;
+      const localizacao = document.getElementById("localizacao").value;
+      const respostaDiv = document.getElementById("resultado");
+      const avancadoDiv = document.getElementById("avancado");
+
+      // Limpa os resultados anteriores
+      respostaDiv.innerHTML = "";
+      avancadoDiv.innerHTML = "";
+
+      const resposta = await fetch("/processar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ frase, metadados: { localizacao: localizacao } })
+      }).then(async (res) => await res.json());
+
+      if (resposta.status == 200) {
+        switch (resposta.type) {
+          case "CONCEITO":
+            respostaDiv.innerText = `Ação: ${resposta.data} executada!`;
+            break;
+
+          case "SIMILARIDADE":
+            const titulo = document.createElement("h3");
+            titulo.textContent = "Não foi possível encontrar exatamente essa ação. Você quis dizer:";
+            respostaDiv.appendChild(titulo);
+
+            const subtitulo = document.createElement("p");
+            subtitulo.textContent = "Sugestões:";
+            respostaDiv.appendChild(subtitulo);
+
+            const lista = document.createElement("ul");
+            resposta.data.forEach(item => {
+              const li = document.createElement("li");
+              li.textContent = item + " ";
+
+              const botao = document.createElement("button");
+              botao.textContent = "Adicionar informação";
+              botao.onclick = async () => {
+                respostaDiv.innerHTML = "";
+                avancadoDiv.innerHTML = "";
+                const adicionarResp = await fetch("/adicionar-informacao", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ frase: frase, sugestao: item })
+                });
+                const resultado = await adicionarResp.json();
+                alert(resultado.mensagem || "Informação adicionada!");
+              };
+
+              li.appendChild(botao);
+              lista.appendChild(li);
+            });
+            respostaDiv.appendChild(lista);
+
+            const tituloAvancado = document.createElement("h3");
+            tituloAvancado.textContent = "Não achou o que procura?";
+            avancadoDiv.appendChild(tituloAvancado);
+
+            const botaoAvancado = document.createElement("button");
+            botaoAvancado.textContent = "Pesquisa mais avançada";
+            botaoAvancado.className = "btn-avancado";
+            botaoAvancado.onclick = async () => {
+              respostaDiv.innerHTML = "";
+              avancadoDiv.innerHTML = "";
+              await fetch("/pesquisa-avancada", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ frase, metadados: { localizacao: localizacao } })
+              });
+              alert("Enviando para pesquisa avançada...");
+            };
+
+            avancadoDiv.appendChild(botaoAvancado);
+            break;
+
+          case "SUGESTOES":
+            const sugestoesTitulo = document.createElement("h3");
+            sugestoesTitulo.textContent = "Sugestões encontradas:";
+            respostaDiv.appendChild(sugestoesTitulo);
+
+            resposta.data.forEach(sugestao => {
+              const div = document.createElement("div");
+              div.style.marginBottom = "1em";
+
+              const texto = document.createElement("p");
+              texto.innerHTML = `<strong>${sugestao.prefLabel}</strong><br>${sugestao.description}`;
+              div.appendChild(texto);
+
+              const botaoExecutar = document.createElement("button");
+              botaoExecutar.textContent = "Assimilar e executar";
+              botaoExecutar.onclick = async () => {
+                respostaDiv.innerHTML = "";
+                avancadoDiv.innerHTML = "";
+                const executarResp = await fetch("/assimilar-e-executar", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    frase: frase,
+                    sugestao: sugestao
+                  })
+                });
+                const resultado = await executarResp.json();
+                alert("Ação executada!");
+              };
+
+              div.appendChild(botaoExecutar);
+              respostaDiv.appendChild(div);
+            });
+            break;
+
+          default:
+            respostaDiv.innerText = "Desculpe, não consegui entender o comando.";
+            break;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

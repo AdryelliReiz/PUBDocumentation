@@ -78,21 +78,44 @@ led_state = 0
 led.value(led_state)
 
 # =============================== < wi-fi > ===============================
-ssid = "Batcaverna-IoT"
-password = "4pfXgcGh7y"
+#ssid = "Batcaverna-IoT"
+#password = "4pfXgcGh7y"
 #ssid = "lab8"
 #password = "lab8arduino"
 
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(ssid, password)
+#wlan = network.WLAN(network.STA_IF)
+#wlan.active(True)
+#wlan.connect(ssid, password)
 
-while not wlan.isconnected():
-    print("Conectando ao Wi-Fi...")
-    time.sleep(1)
+#while not wlan.isconnected():
+#    print("Conectando ao Wi-Fi...")
+#    time.sleep(1)
 
-print("Wi-Fi conectado! Configurações de IP:", wlan.ifconfig())
-own_ip_address = wlan.ifconfig()[0]
+#print("Wi-Fi conectado! Configurações de IP:", wlan.ifconfig())
+#own_ip_address = wlan.ifconfig()[0]
+
+def wps_connect():
+    wlan = network.WLAN(network.STA_IF)  # Modo estação
+    wlan.active(True)
+
+    print("Iniciando WPS...")
+    wlan.wps_start()  # Inicia o processo de WPS
+    
+    for _ in range(20):  # Aguarda até 20 segundos para conexão
+        if wlan.isconnected():
+            print("Conectado com sucesso!")
+            print("IP:", wlan.ifconfig()[0])
+            return wlan.ifconfig()[0]
+        time.sleep(1)
+    
+    print("Falha ao conectar via WPS.")
+    return None
+
+ip = wps_connect()
+
+
+print("Wi-Fi conectado! Configurações de IP:", ip)
+own_ip_address = ip
 
 # =============================== < microdot > ===============================
 app = Microdot()

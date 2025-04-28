@@ -1,0 +1,24 @@
+@prefix ex: <http://example.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+
+ex:ApagarLuzQuarto a skos:Concept ;
+    ex:temLocal ex:Quarto ;
+    ex:temProcesso ex:ProcessoApagarLuz ;
+    skos:altLabel "apagar" ;
+    skos:prefLabel "apagar a luz" .
+
+ex:AscenderLuzQuarto a skos:Concept ;
+    ex:temLocal ex:Quarto ;
+    ex:temProcesso ex:ProcessoAcenderLuz ;
+    skos:prefLabel "acender a luz" .
+
+ex:ProcessoAcenderLuz a sosa:Process ;
+    skos:prefLabel "Executar rotina para acender luz" .
+
+ex:ProcessoApagarLuz a sosa:Process ;
+    skos:prefLabel "Executar rotina para apagar luz" .
+
+ex:Quarto a ex:Local ;
+    skos:prefLabel "quarto" .
+
