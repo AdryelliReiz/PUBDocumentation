@@ -5,7 +5,10 @@ import requests
 from zeroconf import Zeroconf, ServiceBrowser, ServiceStateChange
 from utils import is_same_subnet
 
-thing_directory_info = None  # Armazena o resultado da descoberta
+thing_directory_info = {
+    "ip": 'localhost',
+    "port": 8081
+}  # Armazena o resultado da descoberta
 
 def obter_ip_local():
     for iface in netifaces.interfaces():

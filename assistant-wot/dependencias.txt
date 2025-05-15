@@ -2,3 +2,6 @@ Flask
 rdflib
 openai
 dotenv
+netifaces
+requests
+zeroconf

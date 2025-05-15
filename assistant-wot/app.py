@@ -42,12 +42,16 @@ def pesquisa_avancado():
     try:
         things_descriptions = buscar_things()
         print(things_descriptions)
-        if things_descriptions:
-            localizacao = metadados.get("localizacao", "")
-            resposta = pesquisar_sugestoes(things_descriptions, frase, localizacao)
-            return jsonify({"status": 200, "type": "SUGESTOES", "data": resposta})
-        else:
-            return jsonify({"status": 404, "data": {}})
+
+        localizacao = metadados.get("localizacao", "")
+        resposta = pesquisar_sugestoes(things_descriptions, frase, localizacao)
+        return jsonify({"status": 200, "type": "SUGESTOES", "data": resposta})
+        #if things_descriptions:
+        #    localizacao = metadados.get("localizacao", "")
+        #    resposta = pesquisar_sugestoes(things_descriptions, frase, localizacao)
+        #    return jsonify({"status": 200, "type": "SUGESTOES", "data": resposta})
+        #else:
+        #    return jsonify({"status": 404, "data": {}})
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
     
