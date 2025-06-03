@@ -41,10 +41,12 @@ O alinhamento entre **Thing Description (TD)** e **SOSA/SSN** é essencial para 
 ## Estrutura do Projeto
 - **/docs**: Arquivos de documentação detalhados sobre as atividades (semanais) realizadas durante o projeto.
 
-## Discentes Responsáveis
+## Discente
+- **Adryelli Reis** (Bolsista) - USP, aluna de Sistemas de Informação
+
+## Docentes
 - **José de Jesús Pérez Alcázar** (Proponente) - EACH/USP
 - **Fabio Nakano** (Co-orientador) - EACH/USP
-- **Adryelli Reis** (Bolsista) - USP, aluna de Sistemas de Informação
 
 ## Licença
 Este projeto está licenciado sob a **Licença MIT**, permitindo a reprodução e modificação com os devidos créditos ao autor original. Consulte o arquivo `LICENSE` para mais detalhes.
