@@ -4,6 +4,31 @@ import requests
 from zeroconf import Zeroconf, ServiceBrowser
 from aiohttp import web
 import socket
+from zeroconf import Zeroconf, ServiceInfo
+
+def registrar_servico_mdns():
+    zeroconf = Zeroconf()
+    desc = {
+        "path": "/thing-description"
+    }
+
+    service_info = ServiceInfo(
+        "_wot._tcp.local.",  # Tipo do serviço
+        "desktopteste._wot._tcp.local.",  # Nome do serviço
+        addresses=[socket.inet_aton(IP_LOCAL)],  # IP em bytes
+        port=8080,
+        properties=desc,
+        server="esp32.local."  # Apelido mDNS desejado
+    )
+
+    try:
+        zeroconf.register_service(service_info)
+        print("✅ Serviço registrado via mDNS como:", service_info.name)
+    except Exception as e:
+        print("❌ Erro ao registrar serviço mDNS:", e)
+
+    return zeroconf  # importante: mantenha para poder fechar depois se quiser
+
 
 IP_LOCAL = '0.0.0.0'
 # Cria um socket temporário para obter o IP local
@@ -22,7 +47,7 @@ TD = {
     ],
     "title": "ESP32 Device",
     "id": "urn:dev:ops:adry-desktop",
-    "base": "http://esp32.local",
+    "base": "http://desktopteste.local",
     "security": ["nosec_sc"],
     "properties": {
         "getThingDescription": {
@@ -134,11 +159,16 @@ async def start_server():
     await api.start()
 
 async def main():
+    zeroconf = registrar_servico_mdns()
     # Inicia o servidor
     server_task = asyncio.create_task(start_server())
     # Executa a descoberta do serviço uma vez
     await discover_service()
     # Aguarda indefinidamente para manter o servidor ativo
-    await asyncio.Event().wait()
+    try:
+        await asyncio.Event().wait()
+    finally:
+        zeroconf.close()
+
 
 asyncio.run(main())

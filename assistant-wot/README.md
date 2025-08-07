@@ -2,6 +2,11 @@
 
 Este projeto é uma aplicação Python cujo arquivo principal é `main.py`. Abaixo estão as instruções para executar o projeto, bem como uma explicação da estrutura do projeto e das funções implementadas.
 
+## Antes de executar o projeto
+
+É necessário que um thing-directory e pelo uma thing estajam rodando antes de executar o assistente para ter uma melhor experiência de uso.
+O Exemplo de uma Thing que pode ser usada está na raiz do diretório PUBDOCUMENTATION, localizado em `/tests/thing/exemple_think_desktop.py`.
+
 ## Como executar o projeto
 
 1. Certifique-se de ter o Python 3.8 ou superior instalado em sua máquina.

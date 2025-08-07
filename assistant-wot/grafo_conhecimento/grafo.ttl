@@ -1,24 +1,133 @@
-@prefix ex: <http://example.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix httpm: <http://www.w3.org/2011/http#> .
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix schema1: <http://schema.org/> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix wot-hyp: <https://www.w3.org/2019/wot/hypermedia#> .
+@prefix wot-js: <https://www.w3.org/2019/wot/json-schema#> .
+@prefix wot-td: <https://www.w3.org/2019/wot/td#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ex:ApagarLuzQuarto a skos:Concept ;
-    ex:temLocal ex:Quarto ;
-    ex:temProcesso ex:ProcessoApagarLuz ;
-    skos:altLabel "apagar" ;
-    skos:prefLabel "apagar a luz" .
+<urn:dev:ops:adry-desktop> a wot-td:Thing ;
+    wot-td:baseURI "http://desktopteste.local" ;
+    wot-td:definesSecurityScheme [ a <https://www.w3.org/2019/wot/security#NoSecurityScheme> ;
+            wot-td:hasInstanceConfiguration <file:///home/adryreis/Desktop/adry/usp/PUBDocumentation/assistant-wot/nosec_sc> ] ;
+    wot-td:hasActionAffordance [ wot-td:description "Does something"@en ;
+            wot-td:hasForm [ wot-hyp:forContentType "application/json" ;
+                    wot-hyp:hasOperationType wot-td:invokeAction ;
+                    wot-hyp:hasTarget "/doSomething"^^xsd:anyURI ] ;
+            wot-td:name "doSomething" ;
+            wot-td:title "Do something"@en ] ;
+    wot-td:hasLink [ wot-hyp:hasRelationType "actions" ;
+            wot-hyp:hasTarget "/actions"^^xsd:anyURI ],
+        [ wot-hyp:hasRelationType "events" ;
+            wot-hyp:hasTarget "/events"^^xsd:anyURI ],
+        [ wot-hyp:hasRelationType "properties" ;
+            wot-hyp:hasTarget "/properties"^^xsd:anyURI ] ;
+    wot-td:hasPropertyAffordance [ a wot-js:StringSchema ;
+            wot-js:readOnly true ;
+            wot-td:description "Provides the Thing Description of the device"@en ;
+            wot-td:hasForm [ wot-hyp:forContentType "application/json" ;
+                    wot-hyp:hasOperationType wot-td:readProperty ;
+                    wot-hyp:hasTarget "/getThingDescription"^^xsd:anyURI ] ;
+            wot-td:name "getThingDescription" ;
+            wot-td:title "Get Thing Description"@en ] ;
+    wot-td:hasSecurityConfiguration "nosec_sc"^^xsd:string ;
+    wot-td:registration [ dcterms:created "2025-06-02T20:38:54.049387+00:00"^^xsd:dateTime ;
+            dcterms:modified "2025-06-02T20:48:51.990697+00:00"^^xsd:dateTime ] ;
+    wot-td:title "ESP32 Device"@en .
 
-ex:AscenderLuzQuarto a skos:Concept ;
-    ex:temLocal ex:Quarto ;
-    ex:temProcesso ex:ProcessoAcenderLuz ;
-    skos:prefLabel "acender a luz" .
-
-ex:ProcessoAcenderLuz a sosa:Process ;
-    skos:prefLabel "Executar rotina para acender luz" .
-
-ex:ProcessoApagarLuz a sosa:Process ;
-    skos:prefLabel "Executar rotina para apagar luz" .
-
-ex:Quarto a ex:Local ;
-    skos:prefLabel "quarto" .
+<urn:uuid:014139c9-0000-4db5-9c61-cc2d2bfc217d> a wot-td:Thing ;
+    schema1:location [ a schema1:Place ;
+            schema1:description "Sala onde o dispositivo está localizado" ;
+            schema1:geo [ a schema1:GeoCoordinates ;
+                    schema1:elevation 7.04e+01 ;
+                    schema1:latitude 4.075e+01 ;
+                    schema1:longitude -7.398e+01 ] ;
+            schema1:name "Laboratório 8" ] ;
+    wot-td:definesSecurityScheme [ a <https://www.w3.org/2019/wot/security#NoSecurityScheme> ;
+            wot-td:hasInstanceConfiguration <file:///home/adryreis/Desktop/adry/usp/PUBDocumentation/assistant-wot/nosec_sc> ] ;
+    wot-td:hasActionAffordance [ skos:altLabel "Desliga o buzzer" ;
+            wot-td:hasForm [ httpm:methodName "GET" ;
+                    wot-hyp:hasOperationType wot-td:invokeAction ;
+                    wot-hyp:hasTarget "http://localhost:5000/mute/on"^^xsd:anyURI ] ;
+            wot-td:isIdempotent true ;
+            wot-td:isSafe false ;
+            wot-td:name "mute-on" ],
+        [ skos:altLabel "Apaga a lâmpada" ;
+            wot-td:hasForm [ httpm:methodName "GET" ;
+                    wot-hyp:hasOperationType wot-td:invokeAction ;
+                    wot-hyp:hasTarget "http://localhost:5000/lamp/off"^^xsd:anyURI ] ;
+            wot-td:isIdempotent true ;
+            wot-td:isSafe false ;
+            wot-td:name "lamp-off" ],
+        [ skos:altLabel "Acende a lâmpada",
+                "ligar a lâmpada" ;
+            wot-td:hasForm [ httpm:methodName "GET" ;
+                    wot-hyp:hasOperationType wot-td:invokeAction ;
+                    wot-hyp:hasTarget "http://localhost:5000/lamp/on"^^xsd:anyURI ] ;
+            wot-td:isIdempotent true ;
+            wot-td:isSafe false ;
+            wot-td:name "lamp-on" ],
+        [ skos:altLabel "Liga o buzzer" ;
+            wot-td:hasForm [ httpm:methodName "GET" ;
+                    wot-hyp:hasOperationType wot-td:invokeAction ;
+                    wot-hyp:hasTarget "http://localhost:5000/mute/off"^^xsd:anyURI ] ;
+            wot-td:isIdempotent true ;
+            wot-td:isSafe false ;
+            wot-td:name "mute-off" ] ;
+    wot-td:hasPropertyAffordance [ a wot-js:BooleanSchema ;
+            skos:altLabel "buzzer state" ;
+            wot-js:readOnly true ;
+            wot-td:description "text in the response: True=On; False=Off"@en ;
+            wot-td:hasForm [ wot-hyp:hasOperationType wot-td:readProperty ;
+                    wot-hyp:hasTarget "http://localhost:5000/mute"^^xsd:anyURI ;
+                    wot-hyp:returns [ wot-hyp:forContentType "text/html" ] ] ;
+            wot-td:isObservable false ;
+            wot-td:name "mute" ],
+        [ a wot-js:NumberSchema ;
+            schema1:unitCode om:degreeCelsius ;
+            skos:altLabel "air temperature" ;
+            wot-js:readOnly true ;
+            wot-td:description "text in the response: air temperature in Celsius, TD recom example 44 is missing information: measurement unit is in the response(?) or in the request(?) saref:TemperatureSensor is deprecated."@en ;
+            wot-td:hasForm [ wot-hyp:hasOperationType wot-td:readProperty ;
+                    wot-hyp:hasTarget "http://localhost:5000/temperature"^^xsd:anyURI ;
+                    wot-hyp:returns [ wot-hyp:forContentType "text/plain" ] ] ;
+            wot-td:isObservable false ;
+            wot-td:name "temperature" ],
+        [ a wot-js:BooleanSchema ;
+            skos:altLabel "Lamp state" ;
+            wot-js:readOnly true ;
+            wot-td:description "text in the response: True=On; False=Off, skos:altLabel is permitted see https://w3c.github.io/wot-thing-description/#saref-state-annotation-example for the same use with saref"@en ;
+            wot-td:hasForm [ wot-hyp:hasOperationType wot-td:readProperty ;
+                    wot-hyp:hasTarget "http://localhost:5000/lamp"^^xsd:anyURI ;
+                    wot-hyp:returns [ wot-hyp:forContentType "text/html" ] ] ;
+            wot-td:isObservable false ;
+            wot-td:name "lamp" ],
+        [ a wot-js:IntegerSchema ;
+            skos:altLabel "Ambient light" ;
+            wot-js:maximum 4095 ;
+            wot-js:minimum 0 ;
+            wot-js:readOnly true ;
+            wot-td:description "html form"@en ;
+            wot-td:hasForm [ wot-hyp:hasOperationType wot-td:readProperty ;
+                    wot-hyp:hasTarget "http://localhost:5000/ldr"^^xsd:anyURI ;
+                    wot-hyp:returns [ wot-hyp:forContentType "text/html" ] ] ;
+            wot-td:isObservable false ;
+            wot-td:name "ldr" ],
+        [ a schema1:GeoCoordinates,
+                wot-js:ObjectSchema ;
+            wot-js:properties [ a wot-js:NumberSchema ;
+                    wot-td:name "latitude" ],
+                [ a wot-js:NumberSchema ;
+                    wot-td:name "elevation" ],
+                [ a wot-js:NumberSchema ;
+                    wot-td:name "longitude" ] ;
+            wot-td:description "Work in progress. From example 47. It is not clear what is properties nested into properties and it is not clear the datatype (is is JSON?) notice that position in schema.org is the position of an item in a series so the name dont have to be bound to the ontology in fact, there is an @type which clarifies it in the response ... should properties be schema:geo??"@en ;
+            wot-td:hasForm [ wot-hyp:hasTarget "http://localhost:5000/position"^^xsd:anyURI ] ;
+            wot-td:name "position" ] ;
+    wot-td:hasSecurityConfiguration "nosec_sc"^^xsd:string ;
+    wot-td:registration [ dcterms:created "2025-07-20T00:40:50.774822+00:00"^^xsd:dateTime ;
+            dcterms:modified "2025-08-04T20:53:12.163513+00:00"^^xsd:dateTime ] ;
+    wot-td:title "MyDeviceThing"@en .
 

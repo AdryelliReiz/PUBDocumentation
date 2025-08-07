@@ -4,16 +4,148 @@
   <meta charset="UTF-8">
   <title>Assistente WoT</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2em; background: #f9f9f9; }
-    .container-search { width: 100%; display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-    button { padding: 0.5rem 1rem; cursor: pointer; }
-    #resultado { margin-top: 1em; padding: 1em; background: #fff; border: 1px solid #ddd; white-space: pre-wrap; }
-    .btn-avancado {
-      margin-top: 1em;
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 2rem;
+    }
+
+    .container-search {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+    }
+
+    input[type="text"] {
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      flex-grow: 1;
+      min-width: 200px;
+    }
+
+    button {
       background-color: #007bff;
       color: white;
       border: none;
+      padding: 0.75rem 1.2rem;
+      margin: 0 0.5rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #resultado {
+      width: 100%;
+      max-width: 800px;
+      background-color: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1rem;
+    }
+
+    .component-item {
+      background: #f9f9f9;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+    .component-item strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #222;
+    }
+
+    .alt-labels {
+      font-style: italic;
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+    }
+
+    ul li {
+      list-style-type: none;
+    }
+
+    #avancado {
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .btn-small {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
       border-radius: 4px;
+      background-color: #28a745;
+    }
+
+    .btn-small:hover {
+      background-color: #218838;
+    }
+
+    .btn-cancel {
+      background-color: #dc3545;
+    }
+
+    .btn-cancel:hover {
+      background-color: #c82333;
+    }
+    .spinner-container {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid #007bff;
+      border-top: 3px solid #f0f2f5;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -22,128 +154,192 @@
   <div class="container-search">
     <input type="text" id="localizacao" placeholder="Digite a localização..." style="padding: 0.5em; width: 200px;">
     <input type="text" id="frase" placeholder="Digite seu comando..." style="width: 100%; padding: 0.5em;">
-    <button onclick="enviarFrase()">Enviar</button>
+    <button id="btn_enviar_frase" onclick="enviarFrase()">Enviar</button>
   </div>
 
   <div id="resultado"></div>
-  <div id="avancado"></div>
 
   <script>
+    function mostrarSpinner() {
+      return `
+        <div class="spinner-container">
+          <span class="spinner"></span>
+          <span>Processando...</span>
+        </div>
+      `;
+    }
+
     async function enviarFrase() {
       const frase = document.getElementById("frase").value;
       const localizacao = document.getElementById("localizacao").value;
+      const fraseDiv = document.getElementById("frase");
+      const localizacaDiv = document.getElementById("localizacao");
       const respostaDiv = document.getElementById("resultado");
       const avancadoDiv = document.getElementById("avancado");
+      const enviarFraseBtn = document.getElementById("btn_enviar_frase");
 
-      // Limpa os resultados anteriores
-      respostaDiv.innerHTML = "";
-      avancadoDiv.innerHTML = "";
+      // Limpa os resultados anteriores e exibe um spinner de carregamento
+      respostaDiv.innerHTML = mostrarSpinner();
 
-      const resposta = await fetch("/processar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ frase, metadados: { localizacao: localizacao } })
+      const resposta = await fetch(`/processar?frase=${encodeURIComponent(frase)}&localizacao=${encodeURIComponent(localizacao)}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
       }).then(async (res) => await res.json());
 
-      if (resposta.status == 200) {
+      respostaDiv.innerHTML = ""; // Limpa o spinner
+
+      if (resposta.status === 200) {
+        enviarFraseBtn.disabled = true;// Desabilita o botão enquanto processa
+
         switch (resposta.type) {
           case "CONCEITO":
-            respostaDiv.innerText = `Ação: ${resposta.data} executada!`;
+            if (resposta.status === 200) {
+              respostaDiv.innerText = resposta.message;
+
+              // Exibe o botão para voltar
+              const botaoVoltar = document.createElement("button");
+              botaoVoltar.textContent = "Voltar";
+              botaoVoltar.onclick = () => {
+                respostaDiv.innerHTML = "";
+                fraseDiv.value = "";
+                localizacaDiv.value = "";
+                enviarFraseBtn.disabled = false; // Reabilita o botão
+              };
+              respostaDiv.appendChild(botaoVoltar);
+            } else {
+              alert(`Erro ao executar ação: ${resposta.message}`);
+            }
             break;
 
           case "SIMILARIDADE":
             const titulo = document.createElement("h3");
-            titulo.textContent = "Não foi possível encontrar exatamente essa ação. Você quis dizer:";
-            respostaDiv.appendChild(titulo);
+            
+            if (resposta.data.length === 0) {
+              titulo.textContent = "Nenhum componente encontrado para a frase informada.";
+              respostaDiv.appendChild(titulo);
+            } else {
+              titulo.textContent = "Não foi possível encontrar exatamente essa ação. Você quis dizer:";
+              respostaDiv.appendChild(titulo);
 
-            const subtitulo = document.createElement("p");
-            subtitulo.textContent = "Sugestões:";
-            respostaDiv.appendChild(subtitulo);
+              const subtitulo = document.createElement("p");
+              subtitulo.textContent = "Sugestões:";
+              respostaDiv.appendChild(subtitulo);
 
-            const lista = document.createElement("ul");
-            resposta.data.forEach(item => {
-              const li = document.createElement("li");
-              li.textContent = item + " ";
+              const lista = document.createElement("ul");
+              resposta.data.forEach(item => {
+                const li = document.createElement("li");
+                li.classList.add("component-item");
+                
+                // Exibe o nome do componente
+                const componenteNome = document.createElement("strong");
+                componenteNome.textContent = `Componente: ${item.componente_name} (${item.componente_type})`;
+                li.appendChild(componenteNome);
+                
+                // Exibe as alt_labels
+                if (item.alt_labels && item.alt_labels.length > 0) {
+                  const altLabelsDiv = document.createElement("div");
+                  altLabelsDiv.classList.add("alt-labels");
+                  altLabelsDiv.textContent = `Outros nomes: ${item.alt_labels.join(', ')}`;
+                  li.appendChild(altLabelsDiv);
+                }
 
-              const botao = document.createElement("button");
-              botao.textContent = "Adicionar informação";
-              botao.onclick = async () => {
-                respostaDiv.innerHTML = "";
-                avancadoDiv.innerHTML = "";
-                const adicionarResp = await fetch("/adicionar-informacao", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ frase: frase, sugestao: item })
-                });
-                const resultado = await adicionarResp.json();
-                alert(resultado.mensagem || "Informação adicionada!");
-              };
+                const botao = document.createElement("button");
+                botao.textContent = "Adicionar informação";
+                botao.onclick = async () => {
+                  respostaDiv.innerHTML = "";
+                  const adicionarResp = await fetch("/adicionar-informacao", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      frase: frase,
+                      thing_uri: item.thing_uri,
+                      componente_name: item.componente_name,
+                      componente_type: item.componente_type
+                    })
+                  });
+                  const resultado = await adicionarResp.json();
 
-              li.appendChild(botao);
-              lista.appendChild(li);
-            });
-            respostaDiv.appendChild(lista);
+                  if (resultado.status === 200) {
+                    respostaDiv.innerText = resultado.message;
+                    // dá opção para executar a ação
+                    const botaoExecutar = document.createElement("button");
+                    botaoExecutar.textContent = "Executar Ação";
+                    botaoExecutar.onclick = async () => {
+                      const executarResp = await fetch(`/executar-acao?thing_uri=${encodeURIComponent(item.thing_uri)}&componente_name=${encodeURIComponent(item.componente_name)}&componente_type=${encodeURIComponent(item.componente_type)}`, {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" }
+                      });
+                      const execResultado = await executarResp.json();
+                      respostaDiv.innerText = execResultado.message;
 
-            const tituloAvancado = document.createElement("h3");
-            tituloAvancado.textContent = "Não achou o que procura?";
-            avancadoDiv.appendChild(tituloAvancado);
+                      // Adiciona botão para voltar
+                      const botaoVoltar = document.createElement("button");
+                      botaoVoltar.textContent = "Voltar";
+                      botaoVoltar.onclick = () => {
+                        respostaDiv.innerHTML = "";
+                        fraseDiv.value = "";
+                        localizacaDiv.value = "";
+                        enviarFraseBtn.disabled = false; // Reabilita o botão
+                      };
+                      respostaDiv.appendChild(botaoVoltar);
+                    };
+                    respostaDiv.appendChild(botaoExecutar);
 
-            const botaoAvancado = document.createElement("button");
-            botaoAvancado.textContent = "Pesquisa mais avançada";
-            botaoAvancado.className = "btn-avancado";
-            botaoAvancado.onclick = async () => {
-              respostaDiv.innerHTML = "";
-              avancadoDiv.innerHTML = "";
-              await fetch("/pesquisa-avancada", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ frase, metadados: { localizacao: localizacao } })
+                    // Adiciona botão para voltar
+                    const botaoVoltar = document.createElement("button");
+                    botaoVoltar.textContent = "Voltar";
+                    botaoVoltar.onclick = () => {
+                      respostaDiv.innerHTML = "";
+                      fraseDiv.value = "";
+                      localizacaDiv.value = "";
+                      enviarFraseBtn.disabled = false; // Reabilita o botão
+                    };
+                    respostaDiv.appendChild(botaoVoltar);
+                  } else {
+                    respostaDiv.innerText = resultado.message;
+                    // Adiciona botão para voltar
+                    const botaoVoltar = document.createElement("button");
+                    botaoVoltar.textContent = "Voltar";
+                    botaoVoltar.onclick = () => {
+                      respostaDiv.innerHTML = "";
+                      fraseDiv.value = "";
+                      localizacaDiv.value = "";
+                      enviarFraseBtn.disabled = false; // Reabilita o botão
+                    };
+                    respostaDiv.appendChild(botaoVoltar);
+                  }
+                };
+
+                li.appendChild(botao);
+                lista.appendChild(li);
               });
-              alert("Enviando para pesquisa avançada...");
+              respostaDiv.appendChild(lista);
+            }
+
+            // Adicoinar botão para cancelar a busca
+            const botaoCancelar = document.createElement("button");
+            botaoCancelar.textContent = "Cancelar Busca";
+            botaoCancelar.onclick = () => {
+              respostaDiv.innerHTML = "";
+              fraseDiv.value = "";
+              localizacaDiv.value = "";
+              enviarFraseBtn.disabled = false; // Reabilita o botão
             };
+            respostaDiv.appendChild(botaoCancelar);
 
-            avancadoDiv.appendChild(botaoAvancado);
             break;
 
-          case "SUGESTOES":
-            const sugestoesTitulo = document.createElement("h3");
-            sugestoesTitulo.textContent = "Sugestões encontradas:";
-            respostaDiv.appendChild(sugestoesTitulo);
-
-            resposta.data.forEach(sugestao => {
-              const div = document.createElement("div");
-              div.style.marginBottom = "1em";
-
-              const texto = document.createElement("p");
-              texto.innerHTML = `<strong>${sugestao.prefLabel}</strong><br>${sugestao.description}`;
-              div.appendChild(texto);
-
-              const botaoExecutar = document.createElement("button");
-              botaoExecutar.textContent = "Assimilar e executar";
-              botaoExecutar.onclick = async () => {
-                respostaDiv.innerHTML = "";
-                avancadoDiv.innerHTML = "";
-                const executarResp = await fetch("/assimilar-e-executar", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    frase: frase,
-                    sugestao: sugestao
-                  })
-                });
-                const resultado = await executarResp.json();
-                alert("Ação executada!");
-              };
-
-              div.appendChild(botaoExecutar);
-              respostaDiv.appendChild(div);
-            });
-            break;
+          case "INDEFINIDO":
+            respostaDiv.innerText = "Não foi possível identificar o comando. Tente novamente com uma frase mais clara.";
+            break;  
 
           default:
             respostaDiv.innerText = "Desculpe, não consegui entender o comando.";
             break;
         }
+      } else {
+         // Trata erros de status HTTP
+         alert(`Erro do servidor: ${resposta.message || 'Ocorreu um erro desconhecido.'}`);
       }
     }
   </script>
