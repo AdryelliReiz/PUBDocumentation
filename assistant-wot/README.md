@@ -40,7 +40,10 @@ assistant-wot/
 └── README.md                # Documentação do projeto
 ```
 
-A função `pesquisar_sugestoes` ainda está em faze de implementação, então sua chamada está sendo feito de maneira manual e não estamos usando a sua resposta.
+## Documentação
+
+Para fins de estudo e aprimoramento futuro do assistente, foi criada uma documentação explicando seu funcionamento, pontos que não foram abordados e exceções.
+A documentação detalhada do projeto está disponível no arquivo [`docs/README.md`](./docs/README.md).
 
 ## Contribuição
 

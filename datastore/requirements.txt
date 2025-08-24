@@ -1,9 +1,0 @@
-wotpy
-requests
-zeroconf
-aiohttp
-netifaces
-rdflib==6.0.2
-rdflib-jsonld==0.6.0
-bsddb3==6.2.9
-berkeleydb==18.1.6

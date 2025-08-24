@@ -8,35 +8,6 @@
 @prefix wot-td: <https://www.w3.org/2019/wot/td#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<urn:dev:ops:adry-desktop> a wot-td:Thing ;
-    wot-td:baseURI "http://desktopteste.local" ;
-    wot-td:definesSecurityScheme [ a <https://www.w3.org/2019/wot/security#NoSecurityScheme> ;
-            wot-td:hasInstanceConfiguration <file:///home/adryreis/Desktop/adry/usp/PUBDocumentation/assistant-wot/nosec_sc> ] ;
-    wot-td:hasActionAffordance [ wot-td:description "Does something"@en ;
-            wot-td:hasForm [ wot-hyp:forContentType "application/json" ;
-                    wot-hyp:hasOperationType wot-td:invokeAction ;
-                    wot-hyp:hasTarget "/doSomething"^^xsd:anyURI ] ;
-            wot-td:name "doSomething" ;
-            wot-td:title "Do something"@en ] ;
-    wot-td:hasLink [ wot-hyp:hasRelationType "actions" ;
-            wot-hyp:hasTarget "/actions"^^xsd:anyURI ],
-        [ wot-hyp:hasRelationType "events" ;
-            wot-hyp:hasTarget "/events"^^xsd:anyURI ],
-        [ wot-hyp:hasRelationType "properties" ;
-            wot-hyp:hasTarget "/properties"^^xsd:anyURI ] ;
-    wot-td:hasPropertyAffordance [ a wot-js:StringSchema ;
-            wot-js:readOnly true ;
-            wot-td:description "Provides the Thing Description of the device"@en ;
-            wot-td:hasForm [ wot-hyp:forContentType "application/json" ;
-                    wot-hyp:hasOperationType wot-td:readProperty ;
-                    wot-hyp:hasTarget "/getThingDescription"^^xsd:anyURI ] ;
-            wot-td:name "getThingDescription" ;
-            wot-td:title "Get Thing Description"@en ] ;
-    wot-td:hasSecurityConfiguration "nosec_sc"^^xsd:string ;
-    wot-td:registration [ dcterms:created "2025-06-02T20:38:54.049387+00:00"^^xsd:dateTime ;
-            dcterms:modified "2025-06-02T20:48:51.990697+00:00"^^xsd:dateTime ] ;
-    wot-td:title "ESP32 Device"@en .
-
 <urn:uuid:014139c9-0000-4db5-9c61-cc2d2bfc217d> a wot-td:Thing ;
     schema1:location [ a schema1:Place ;
             schema1:description "Sala onde o dispositivo está localizado" ;
