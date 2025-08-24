@@ -39,7 +39,8 @@ Desenvolver uma aplicação protótipo que integre a arquitetura Web of Things c
 O alinhamento entre **Thing Description (TD)** e **SOSA/SSN** é essencial para garantir interoperabilidade entre dispositivos e serviços. Este processo transversal afetará todos os entregáveis, unificando o formato e a estrutura de dados, facilitando a interoperabilidade entre dispositivos, armazenamento e consultas.
 
 ## Estrutura do Projeto
-- **/docs**: Arquivos de documentação detalhados sobre as atividades (semanais) realizadas durante o projeto.
+- **/assistent-wot**: Projeto principal desenvolvido durante a pesquisa — assistente inteligente baseado em WoT.
+- **/test_things**: Conjunto de dispositivos (Things) criados para testes e validação de funcionalidades de forma isolada.
 
 ## Discentes Responsáveis
 - **José de Jesús Pérez Alcázar** (Proponente) - EACH/USP

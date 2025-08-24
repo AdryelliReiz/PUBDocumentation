@@ -25,6 +25,8 @@ O projeto está organizado da seguinte forma:
 ```
 assistant-wot/
 ├── main.py                  # Arquivo principal que inicia a aplicação
+├── docs/                    # Diretório contendo a documentação
+│   └── README.md            # Documentação
 ├── grafo_conhecimento/      # Diretório contendo o grafo de conhecimento e funções de manipulação
 │   ├── __init__.py          # Inicializador do módulo
 │   ├── gerenciador_grafo.py # Manipulador do grafo e consultas à OpenAI
